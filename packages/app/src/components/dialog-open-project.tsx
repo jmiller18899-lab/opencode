@@ -187,7 +187,12 @@ export function DialogOpenProject(props: Props) {
             fallback={
               <form
                 class="flex min-h-52 flex-col justify-center gap-4"
-                onSubmit={(event) => void connect(event).catch(fail)}
+                onSubmit={(event) =>
+                  void connect(event).catch((cause: unknown) => {
+                    setState("token", "")
+                    fail(cause)
+                  })
+                }
               >
                 <div class="flex flex-col gap-1">
                   <div class="text-14-medium text-v2-text-text-base">
