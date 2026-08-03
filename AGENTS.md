@@ -159,3 +159,15 @@ const table = sqliteTable("session", {
 - Keep delivery vocabulary explicit. Prompts steer by default and promote at the next safe provider-turn boundary while the current drain requires continuation. An explicit `queue` input remains pending until the Session would otherwise become idle; promote one queued input at that boundary, then reevaluate continuation before promoting another. Promoting any new user input resets the selected agent's provider-turn allowance; a batch of steers resets it once.
 - Keep EventV2 replay owner claims separate from clustered Session execution ownership.
 - Keep the System Context algebra, registry, and built-ins in `src/system-context`; keep Context Source producers with their observed domains, and keep Session History selection plus Context Epoch persistence Session-owned.
+
+## Cursor Cloud specific instructions
+
+Standard dev/build/test commands live in `CONTRIBUTING.md`, the root `package.json` scripts, and `packages/app/AGENTS.md`; prefer those. Notes below are the non-obvious caveats for this environment.
+
+- `bun` (1.3.14, matching `packageManager`) is preinstalled and on `PATH`; the update script only runs `bun install`. Bun-version and typecheck are enforced by the `.husky/pre-push` hook, so a push runs `bun typecheck` (via `tsgo`).
+- Run the core agent: from repo root `bun dev serve --port 4096` (headless HTTP API, default port 4096) or `bun dev` (TUI) or `bun dev <dir>`. The server starts with zero credentials but returns a provider `APIError` on any real prompt until an LLM key is supplied.
+- Provider credentials come from env vars named by the models.dev catalog (e.g. `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `XAI_API_KEY`). A valid `XAI_API_KEY` secret is configured and read automatically (xAI `grok-4.5` works end-to-end). Only custom-named secrets need mapping — e.g. if a key is stored as `X_AI_API`, `export XAI_API_KEY="$X_AI_API"` before starting the server/TUI.
+- Non-LLM core functionality can be exercised without any key via the running server, e.g. `POST /session` then `POST /session/{id}/shell` with `{"agent":"build","command":"..."}` runs the real `bash` tool and persists output.
+- Web UI local dev (see `packages/app/AGENTS.md`): backend on 4096 + app via `bun dev:web -- --port 4444`, open `http://localhost:4444`. The UI lists sessions per project — use "Add project" and point it at the session's directory (e.g. `/workspace/packages/opencode`) to see existing sessions. Per `packages/app/AGENTS.md`, never restart the backend or app process.
+- Lint (`bun run lint` / `oxlint`) on `dev` currently reports ~4800 pre-existing warnings and 1 pre-existing error (an octal-escape false positive on a Tailwind class in `packages/session-ui/src/v2/components/prompt-input/index.tsx`); a nonzero exit is expected and unrelated to your change.
+- Tests must run from a package dir (root `bun test` is intentionally blocked); the `packages/opencode` suite is the largest end-to-end suite and runs fully offline (`test/preload.ts` strips provider keys, forces in-memory SQLite, and replays recorded HTTP fixtures / a mock LLM), taking ~6 minutes.
