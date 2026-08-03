@@ -76,10 +76,10 @@ export function DialogOpenProject(props: Props) {
     }
     void github
       .status()
-      .then((account) => {
+      .then(async (account) => {
         if (!active) return
         setState({ account, busy: undefined })
-        if (account) return loadRepositories()
+        if (account) await loadRepositories()
       })
       .catch(fail)
   })
@@ -119,7 +119,7 @@ export function DialogOpenProject(props: Props) {
     }
     const { DialogSelectDirectoryV2 } = await import("./dialog-select-directory-v2")
     if (!active) return
-    dialog.push(() => (
+    void dialog.push(() => (
       <DialogSelectDirectoryV2
         server={props.server}
         start={state.destination}
@@ -147,7 +147,7 @@ export function DialogOpenProject(props: Props) {
 
   const openFolder = () => {
     dialog.close()
-    queueMicrotask(props.onOpenFolder)
+    queueMicrotask(() => props.onOpenFolder())
   }
 
   return (

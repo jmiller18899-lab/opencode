@@ -166,9 +166,9 @@ export const cloneRepository = Effect.fn("ProjectImport.cloneRepository")(functi
   return input.target
 })
 
-export function githubRepository(value: string) {
+export function githubRepository(value: string): string | undefined {
   const url = URL.parse(value)
-  if (!url) return
+  if (!url) return undefined
   const parts = url.pathname.replace(/^\/|\/$/g, "").split("/")
   const repository = parts[1]?.replace(/\.git$/, "")
   if (
@@ -184,7 +184,7 @@ export function githubRepository(value: string) {
     !/^[A-Za-z0-9_.-]+$/.test(parts[0]) ||
     !/^[A-Za-z0-9_.-]+$/.test(repository)
   )
-    return
+    return undefined
   return repository
 }
 

@@ -10,7 +10,7 @@ describe("web GitHub platform", () => {
       requests.push({
         path: url.pathname,
         authorization: headers.get("authorization") ?? "",
-        body: init?.body ? JSON.parse(String(init.body)) : undefined,
+        body: typeof init?.body === "string" ? JSON.parse(init.body) : undefined,
       })
       if (url.pathname === "/user") {
         return Response.json({
