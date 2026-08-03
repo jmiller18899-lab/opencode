@@ -95,11 +95,12 @@ export function createHomeProjectsController(home: HomeController) {
             multiple: true,
             onSelect: (result) => home.project.add(conn, homeProjectDirectories(result)),
           })
-        if (!platform.github || !ServerConnection.builtin(conn)) return chooseFolder()
+        if (!platform.github?.canClone(conn)) return chooseFolder()
         void import("@/components/dialog-open-project").then(({ DialogOpenProject }) => {
           dialog.show(() => (
             <DialogOpenProject
               destination={home.project.homedir()}
+              server={conn}
               onOpenFolder={chooseFolder}
               onOpenProject={(directory) => home.project.add(conn, [directory])}
             />

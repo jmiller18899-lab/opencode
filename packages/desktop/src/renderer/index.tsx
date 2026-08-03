@@ -176,7 +176,8 @@ const createPlatform = (windowState: DesktopWindowState): Platform => {
       connect: (token) => desktopRequest(window.api.githubConnect(token)),
       disconnect: () => desktopRequest(window.api.githubDisconnect()),
       repositories: () => desktopRequest(window.api.githubRepositories()),
-      clone: (input) => desktopRequest(window.api.githubClone(input)),
+      canClone: ServerConnection.builtin,
+      clone: (input) => desktopRequest(window.api.githubClone({ url: input.url, destination: input.destination })),
     },
 
     async openDirectoryPickerDialog(opts) {

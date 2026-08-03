@@ -112,6 +112,8 @@ import type {
   ProjectCopiesRemoveOutput,
   ProjectCopiesRefreshInput,
   ProjectCopiesRefreshOutput,
+  ProjectImportsGithubInput,
+  ProjectImportsGithubOutput,
 } from "./types"
 import { ClientError } from "./client-error"
 
@@ -983,6 +985,20 @@ export function make(options: ClientOptions) {
             successStatus: 204,
             declaredStatuses: [400, 401],
             empty: true,
+          },
+          requestOptions,
+        ),
+    },
+    projectImports: {
+      github: (input: ProjectImportsGithubInput, requestOptions?: RequestOptions) =>
+        request<ProjectImportsGithubOutput>(
+          {
+            method: "POST",
+            path: `/api/project/import/github`,
+            body: { repository: input["repository"], directory: input["directory"], token: input["token"] },
+            successStatus: 200,
+            declaredStatuses: [400, 401],
+            empty: false,
           },
           requestOptions,
         ),

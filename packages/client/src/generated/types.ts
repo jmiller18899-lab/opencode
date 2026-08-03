@@ -101,6 +101,10 @@ export type ProjectCopyError = {
 export const isProjectCopyError = (value: unknown): value is ProjectCopyError =>
   typeof value === "object" && value !== null && "name" in value && value["name"] === "ProjectCopyError"
 
+export type ProjectImportError = { readonly name: "ProjectImportError"; readonly data: { readonly message: string } }
+export const isProjectImportError = (value: unknown): value is ProjectImportError =>
+  typeof value === "object" && value !== null && "name" in value && value["name"] === "ProjectImportError"
+
 export type HealthGetOutput = { readonly healthy: true }
 
 export type LocationGetInput = {
@@ -2805,3 +2809,11 @@ export type ProjectCopiesRefreshInput = {
 }
 
 export type ProjectCopiesRefreshOutput = void
+
+export type ProjectImportsGithubInput = {
+  readonly repository: { readonly repository: string; readonly directory: string; readonly token: string }["repository"]
+  readonly directory: { readonly repository: string; readonly directory: string; readonly token: string }["directory"]
+  readonly token: { readonly repository: string; readonly directory: string; readonly token: string }["token"]
+}
+
+export type ProjectImportsGithubOutput = { readonly directory: string }

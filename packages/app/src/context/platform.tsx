@@ -44,7 +44,8 @@ export type GitHubPlatform = {
   connect(token: string): Promise<GitHubAccount>
   disconnect(): Promise<void>
   repositories(): Promise<GitHubRepository[]>
-  clone(input: { url: string; destination: string }): Promise<string>
+  canClone(server: ServerConnection.Any): boolean
+  clone(input: { url: string; destination: string; server: ServerConnection.HttpBase }): Promise<string>
 }
 
 export type FatalRendererErrorLog = {

@@ -1385,11 +1385,12 @@ export default function LegacyLayout(props: ParentProps) {
         multiple: true,
         onSelect: resolve,
       })
-    if (!platform.github || !ServerConnection.builtin(conn)) return chooseFolder()
+    if (!platform.github?.canClone(conn)) return chooseFolder()
     void import("@/components/dialog-open-project").then(({ DialogOpenProject }) => {
       dialog.show(() => (
         <DialogOpenProject
           destination={serverSync().data.path.home ?? ""}
+          server={conn}
           onOpenFolder={chooseFolder}
           onOpenProject={(directory) => void openProject(directory)}
         />

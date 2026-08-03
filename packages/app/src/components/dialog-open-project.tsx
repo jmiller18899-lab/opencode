@@ -1,5 +1,6 @@
 import { useLanguage } from "@/context/language"
 import { type GitHubAccount, type GitHubRepository, usePlatform } from "@/context/platform"
+import type { ServerConnection } from "@/context/server"
 import { Avatar } from "@opencode-ai/ui/v2/avatar-v2"
 import { Tag } from "@opencode-ai/ui/v2/badge-v2"
 import { ButtonV2 } from "@opencode-ai/ui/v2/button-v2"
@@ -13,6 +14,7 @@ import { createStore } from "solid-js/store"
 
 type Props = {
   destination: string
+  server: ServerConnection.Any
   onOpenFolder(): void
   onOpenProject(directory: string): void
 }
@@ -105,20 +107,39 @@ export function DialogOpenProject(props: Props) {
   }
 
   const chooseDestination = async () => {
-    if (platform.platform !== "desktop" || state.busy) return
-    const result = await platform.openDirectoryPickerDialog({
-      title: language.t("dialog.project.open.github.destination.choose"),
-      multiple: false,
-      defaultPath: state.destination,
-    })
-    if (typeof result === "string") setState("destination", result)
+    if (state.busy) return
+    if (platform.platform === "desktop") {
+      const result = await platform.openDirectoryPickerDialog({
+        title: language.t("dialog.project.open.github.destination.choose"),
+        multiple: false,
+        defaultPath: state.destination,
+      })
+      if (typeof result === "string") setState("destination", result)
+      return
+    }
+    const { DialogSelectDirectoryV2 } = await import("./dialog-select-directory-v2")
+    if (!active) return
+    dialog.push(() => (
+      <DialogSelectDirectoryV2
+        server={props.server}
+        start={state.destination}
+        title={language.t("dialog.project.open.github.destination.choose")}
+        onSelect={(result) => {
+          if (typeof result === "string") setState("destination", result)
+        }}
+      />
+    ))
   }
 
   const clone = async () => {
     const repository = selected()
     if (!github || !repository || !state.destination || state.busy) return
     setState({ busy: "clone", error: undefined })
-    const directory = await github.clone({ url: repository.cloneUrl, destination: state.destination })
+    const directory = await github.clone({
+      url: repository.cloneUrl,
+      destination: state.destination,
+      server: props.server.http,
+    })
     if (!active) return
     props.onOpenProject(directory)
     dialog.close()
@@ -133,7 +154,7 @@ export function DialogOpenProject(props: Props) {
     <Dialog
       fit
       size="large"
-      containerClass="!h-auto max-h-[calc(100vh_-_16px)]"
+      containerClass="!h-auto max-h-[calc(100dvh_-_16px)]"
       class="[font-family:var(--v2-font-family-sans)]"
     >
       <DialogHeader closeLabel={language.t("common.close")}>
