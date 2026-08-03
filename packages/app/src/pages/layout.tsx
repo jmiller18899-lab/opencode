@@ -1378,12 +1378,22 @@ export default function LegacyLayout(props: ParentProps) {
         void openProject(result)
       }
     }
-
-    pickDirectory({
-      server: conn,
-      title: language.t("command.project.open"),
-      multiple: true,
-      onSelect: resolve,
+    const chooseFolder = () =>
+      pickDirectory({
+        server: conn,
+        title: language.t("command.project.open"),
+        multiple: true,
+        onSelect: resolve,
+      })
+    if (!platform.github || !ServerConnection.builtin(conn)) return chooseFolder()
+    void import("@/components/dialog-open-project").then(({ DialogOpenProject }) => {
+      dialog.show(() => (
+        <DialogOpenProject
+          destination={serverSync().data.path.home ?? ""}
+          onOpenFolder={chooseFolder}
+          onOpenProject={(directory) => void openProject(directory)}
+        />
+      ))
     })
   }
 

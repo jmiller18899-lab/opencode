@@ -171,11 +171,19 @@ const createPlatform = (windowState: DesktopWindowState): Platform => {
     os,
     version: pkg.version,
     windowID: windowState.id,
+    github: {
+      status: () => window.api.githubStatus(),
+      connect: (token) => window.api.githubConnect(token),
+      disconnect: () => window.api.githubDisconnect(),
+      repositories: () => window.api.githubRepositories(),
+      clone: (input) => window.api.githubClone(input),
+    },
 
     async openDirectoryPickerDialog(opts) {
       return window.api.openDirectoryPicker({
         multiple: opts?.multiple ?? false,
         title: opts?.title ?? t("desktop.dialog.chooseFolder"),
+        defaultPath: opts?.defaultPath,
       })
     },
 

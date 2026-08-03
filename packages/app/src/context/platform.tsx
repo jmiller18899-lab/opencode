@@ -8,7 +8,7 @@ import type { UpdaterPlatform } from "../updater"
 import type { DraftStore } from "@/utils/draft-store"
 
 type PickerPaths = string | string[] | null
-type OpenDirectoryPickerOptions = { title?: string; multiple?: boolean }
+type OpenDirectoryPickerOptions = { title?: string; multiple?: boolean; defaultPath?: string }
 type OpenAttachmentPickerOptions = {
   title?: string
   multiple?: boolean
@@ -19,6 +19,33 @@ type OpenAttachmentPickerOptions = {
 type SaveFilePickerOptions = { title?: string; defaultPath?: string }
 type PlatformName = "web" | "desktop"
 type DesktopOS = "macos" | "windows" | "linux"
+
+export type GitHubAccount = {
+  login: string
+  name?: string
+  avatarUrl: string
+  storage: "persistent" | "session"
+}
+
+export type GitHubRepository = {
+  id: number
+  name: string
+  nameWithOwner: string
+  owner: string
+  description?: string
+  private: boolean
+  cloneUrl: string
+  defaultBranch: string
+  updatedAt: string
+}
+
+export type GitHubPlatform = {
+  status(): Promise<GitHubAccount | null>
+  connect(token: string): Promise<GitHubAccount>
+  disconnect(): Promise<void>
+  repositories(): Promise<GitHubRepository[]>
+  clone(input: { url: string; destination: string }): Promise<string>
+}
 
 export type FatalRendererErrorLog = {
   error: string
@@ -121,6 +148,9 @@ type PlatformBase = {
 
   /** Record a fatal renderer error in platform logs (desktop only) */
   recordFatalRendererError?(error: FatalRendererErrorLog): Promise<void>
+
+  /** Connect, browse, and clone GitHub repositories on the local desktop */
+  github?: GitHubPlatform
 }
 
 export type Platform = PlatformBase &
