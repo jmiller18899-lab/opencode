@@ -1,10 +1,9 @@
 import type { GitHubAccount, GitHubPlatform, GitHubRepository } from "@/context/platform"
-import { ServerConnection } from "@/context/server"
-import { createApiForServer } from "./server"
+import { authTokenFromCredentials } from "./server"
 
 type Options = {
   apiUrl?: string
-  fetch?: typeof fetch
+  fetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
 }
 
 export function createWebGitHubPlatform(options: Options = {}): GitHubPlatform {
@@ -67,27 +66,33 @@ export function createWebGitHubPlatform(options: Options = {}): GitHubPlatform {
       if (!secureServer(input.server.url)) {
         throw new Error("Use an HTTPS OpenCode server before sending GitHub credentials.")
       }
-      return createApiForServer({ server: input.server, fetch: request })
-        .projectImports.github({
+      const headers: Record<string, string> = { "Content-Type": "application/json" }
+      if (input.server.password) {
+        headers.Authorization = `Basic ${authTokenFromCredentials({
+          username: input.server.username,
+          password: input.server.password,
+        })}`
+      }
+      const response = await request(new URL("/api/project/import/github", input.server.url), {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
           repository: input.url,
           directory: input.destination,
           token,
-        })
-        .then((result) => result.directory)
-        .catch((cause: unknown) => {
-          if (
-            typeof cause === "object" &&
-            cause !== null &&
-            "data" in cause &&
-            typeof cause.data === "object" &&
-            cause.data !== null &&
-            "message" in cause.data &&
-            typeof cause.data.message === "string"
-          ) {
-            throw new Error(cause.data.message)
-          }
-          throw cause
-        })
+        }),
+      })
+      const result: unknown = await response.json()
+      if (!response.ok) {
+        if (record(result) && record(result.data) && typeof result.data.message === "string") {
+          throw new Error(result.data.message)
+        }
+        throw new Error(`OpenCode server request failed (${response.status}).`)
+      }
+      if (!record(result) || typeof result.directory !== "string") {
+        throw new Error("OpenCode returned an invalid project import response.")
+      }
+      return result.directory
     },
   }
 }

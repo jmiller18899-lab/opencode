@@ -55,6 +55,7 @@ const layer = Layer.effect(
   Service,
   Effect.gen(function* () {
     const fs = yield* FSUtil.Service
+    const appProcess = yield* AppProcess.Service
 
     const github = Effect.fn("ProjectImport.github")(function* (input: GitHubInput) {
       const repository = githubRepository(input.repository)
@@ -71,7 +72,11 @@ const layer = Layer.effect(
         repository: input.repository,
         target,
         token: input.token,
-      }).pipe(Effect.scoped)
+      }).pipe(
+        Effect.provideService(FSUtil.Service, fs),
+        Effect.provideService(AppProcess.Service, appProcess),
+        Effect.scoped,
+      )
     })
 
     return Service.of({ github })
@@ -150,21 +155,14 @@ export const cloneRepository = Effect.fn("ProjectImport.cloneRepository")(functi
     })
   }
 
-  yield* fs
-    .rename(checkout, input.target)
-    .pipe(
-      Effect.catch(() =>
-        fs
-          .existsSafe(input.target)
-          .pipe(
-            Effect.flatMap((exists) =>
-              exists
-                ? Effect.fail(new DestinationExistsError({ directory: input.target }))
-                : Effect.fail(new CloneError({ message: `Failed to finish clone: ${input.target}` })),
-            ),
-          ),
-      ),
-    )
+  yield* fs.rename(checkout, input.target).pipe(
+    Effect.catch(() =>
+      Effect.gen(function* () {
+        if (yield* fs.existsSafe(input.target)) return yield* new DestinationExistsError({ directory: input.target })
+        return yield* new CloneError({ message: `Failed to finish clone: ${input.target}` })
+      }),
+    ),
+  )
   return input.target
 })
 
