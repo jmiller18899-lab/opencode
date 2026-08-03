@@ -1,7 +1,7 @@
 import { execFile } from "node:child_process"
 import { chmod, mkdtemp, rename, rm, stat, writeFile } from "node:fs/promises"
 import { dirname, join, resolve } from "node:path"
-import type { GitHubAccount, GitHubRepository } from "@opencode-ai/app"
+import type { GitHubAccount, GitHubRepository } from "@opencode-ai/app/platform"
 
 export type GitHubToken = {
   value: string

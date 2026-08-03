@@ -1,5 +1,5 @@
 import type { DesktopMenuAction } from "@opencode-ai/app/desktop-menu"
-import type { GitHubAccount, GitHubRepository } from "@opencode-ai/app"
+import type { GitHubAccount, GitHubRepository } from "@opencode-ai/app/platform"
 import type { WslServersPlatform } from "@opencode-ai/app/wsl/types"
 import type { UpdaterState } from "@opencode-ai/app/updater"
 export type {
