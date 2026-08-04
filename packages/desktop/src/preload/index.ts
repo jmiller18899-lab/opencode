@@ -78,6 +78,11 @@ const api: ElectronAPI = {
   draftDelete: (key) => ipcRenderer.invoke("draft-delete", key),
   draftBlobPut: (data) => ipcRenderer.invoke("draft-blob-put", data),
   draftBlobGet: (id) => ipcRenderer.invoke("draft-blob-get", id),
+  githubStatus: () => ipcRenderer.invoke("github-status"),
+  githubConnect: (token) => ipcRenderer.invoke("github-connect", token),
+  githubDisconnect: () => ipcRenderer.invoke("github-disconnect"),
+  githubRepositories: () => ipcRenderer.invoke("github-repositories"),
+  githubClone: (input) => ipcRenderer.invoke("github-clone", input),
 
   getWindowID: () => ipcRenderer.invoke("get-window-id"),
   onMenuCommand: (cb) => {

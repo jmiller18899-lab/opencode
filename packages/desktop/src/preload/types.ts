@@ -1,4 +1,5 @@
 import type { DesktopMenuAction } from "@opencode-ai/app/desktop-menu"
+import type { GitHubAccount, GitHubRepository } from "@opencode-ai/app/platform"
 import type { WslServersPlatform } from "@opencode-ai/app/wsl/types"
 import type { UpdaterState } from "@opencode-ai/app/updater"
 export type {
@@ -68,6 +69,11 @@ export type ElectronAPI = {
   draftDelete: (key: string) => Promise<void>
   draftBlobPut: (data: ArrayBuffer) => Promise<string>
   draftBlobGet: (id: string) => Promise<ArrayBuffer | null>
+  githubStatus: () => Promise<GitHubAccount | null>
+  githubConnect: (token: string) => Promise<GitHubAccount>
+  githubDisconnect: () => Promise<void>
+  githubRepositories: () => Promise<GitHubRepository[]>
+  githubClone: (input: { url: string; destination: string }) => Promise<string>
 
   getWindowID: () => Promise<string>
   onMenuCommand: (cb: (id: string) => void) => () => void

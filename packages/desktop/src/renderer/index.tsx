@@ -171,11 +171,20 @@ const createPlatform = (windowState: DesktopWindowState): Platform => {
     os,
     version: pkg.version,
     windowID: windowState.id,
+    github: {
+      status: () => desktopRequest(window.api.githubStatus()),
+      connect: (token) => desktopRequest(window.api.githubConnect(token)),
+      disconnect: () => desktopRequest(window.api.githubDisconnect()),
+      repositories: () => desktopRequest(window.api.githubRepositories()),
+      canClone: ServerConnection.builtin,
+      clone: (input) => desktopRequest(window.api.githubClone({ url: input.url, destination: input.destination })),
+    },
 
     async openDirectoryPickerDialog(opts) {
       return window.api.openDirectoryPicker({
         multiple: opts?.multiple ?? false,
         title: opts?.title ?? t("desktop.dialog.chooseFolder"),
+        defaultPath: opts?.defaultPath,
       })
     },
 
@@ -316,6 +325,13 @@ const createPlatform = (windowState: DesktopWindowState): Platform => {
       })
     },
   }
+}
+
+function desktopRequest<T>(request: Promise<T>) {
+  return request.catch((cause: unknown) => {
+    const message = cause instanceof Error ? cause.message : String(cause)
+    throw new Error(message.replace(/^Error invoking remote method '[^']+': Error: /, ""))
+  })
 }
 
 let menuTrigger = null as null | ((id: string) => void)

@@ -53,11 +53,21 @@ export function createHomeController() {
     void tabs.newDraft({ server: ServerConnection.key(conn), directory })
   }
 
+  function launchCloakAgent() {
+    const conn = focusedServer()
+    const project = newSessionProject() ?? projects()[0]
+    if (!conn || !project) return
+    void tabs.newDraft({ server: ServerConnection.key(conn), directory: project.worktree }, "@cloak ")
+  }
+
   return {
     selection: {
       value: selection,
       set: setSelection,
       focusServer: (conn: ServerConnection.Any) => setSelection({ server: ServerConnection.key(conn) }),
+    },
+    agent: {
+      launchCloak: launchCloakAgent,
     },
     server: {
       list: global.servers.list,

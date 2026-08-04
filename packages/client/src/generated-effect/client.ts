@@ -681,6 +681,19 @@ const adaptGroup17 = (raw: RawClient["server.projectCopy"]) => ({
   refresh: Endpoint17_2(raw),
 })
 
+type Endpoint18_0Request = Parameters<RawClient["server.projectImport"]["projectImport.github"]>[0]
+type Endpoint18_0Input = {
+  readonly repository: Endpoint18_0Request["payload"]["repository"]
+  readonly directory: Endpoint18_0Request["payload"]["directory"]
+  readonly token: Endpoint18_0Request["payload"]["token"]
+}
+const Endpoint18_0 = (raw: RawClient["server.projectImport"]) => (input: Endpoint18_0Input) =>
+  raw["projectImport.github"]({
+    payload: { repository: input["repository"], directory: input["directory"], token: input["token"] },
+  }).pipe(Effect.mapError(mapClientError))
+
+const adaptGroup18 = (raw: RawClient["server.projectImport"]) => ({ github: Endpoint18_0(raw) })
+
 const adaptClient = (raw: RawClient) => ({
   health: adaptGroup0(raw["server.health"]),
   location: adaptGroup1(raw["server.location"]),
@@ -700,6 +713,7 @@ const adaptClient = (raw: RawClient) => ({
   questions: adaptGroup15(raw["server.question"]),
   references: adaptGroup16(raw["server.reference"]),
   projectCopies: adaptGroup17(raw["server.projectCopy"]),
+  projectImports: adaptGroup18(raw["server.projectImport"]),
 })
 
 export const make = (options?: { readonly baseUrl?: URL | string }) =>

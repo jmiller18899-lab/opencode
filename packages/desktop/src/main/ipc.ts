@@ -1,7 +1,7 @@
 import { execFile } from "node:child_process"
 import { stat } from "node:fs/promises"
 import { basename, join } from "node:path"
-import { app, BrowserWindow, clipboard, dialog, ipcMain, shell } from "electron"
+import { app, BrowserWindow, clipboard, dialog, ipcMain, safeStorage, shell } from "electron"
 import type { IpcMainEvent, IpcMainInvokeEvent } from "electron"
 import type { DesktopMenuAction } from "@opencode-ai/app/desktop-menu"
 
@@ -22,6 +22,7 @@ import {
 import type { UpdaterController } from "./updater-controller"
 import { createUpdaterSubscriptions } from "./updater-subscriptions"
 import { createDesktopDraftStore } from "./draft-store"
+import { createGitHubService, type GitHubTokenStore } from "./github"
 
 const pickerFilters = (ext?: string[]) => {
   if (!ext || ext.length === 0) return undefined
@@ -53,6 +54,7 @@ type Deps = {
 
 export function registerIpcHandlers(deps: Deps) {
   const drafts = createDesktopDraftStore(join(app.getPath("userData"), "drafts.sqlite"))
+  const github = createGitHubService({ tokens: githubTokenStore() })
   const updaterSubscriptions = createUpdaterSubscriptions()
   app.once("will-quit", updaterSubscriptions.clear)
   app.on("before-quit", () => drafts.flush())
@@ -136,6 +138,13 @@ export function registerIpcHandlers(deps: Deps) {
     const data = drafts.getBlob(id)
     return data ? data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) : null
   })
+  ipcMain.handle("github-status", () => github.status())
+  ipcMain.handle("github-connect", (_event: IpcMainInvokeEvent, token: string) => github.connect(token))
+  ipcMain.handle("github-disconnect", () => github.disconnect())
+  ipcMain.handle("github-repositories", () => github.repositories())
+  ipcMain.handle("github-clone", (_event: IpcMainInvokeEvent, input: { url: string; destination: string }) =>
+    github.clone(input),
+  )
 
   ipcMain.handle(
     "open-directory-picker",
@@ -285,6 +294,44 @@ export function registerIpcHandlers(deps: Deps) {
       relaunch: deps.relaunch,
     })
   })
+}
+
+function githubTokenStore(): GitHubTokenStore {
+  const store = getStore("github.auth")
+  const secure =
+    safeStorage.isEncryptionAvailable() &&
+    (process.platform !== "linux" || safeStorage.getSelectedStorageBackend() !== "basic_text")
+  let memory: string | undefined
+
+  return {
+    get() {
+      if (memory) return { value: memory, persistent: false }
+      if (!secure) return
+      const encrypted = store.get("token")
+      if (typeof encrypted !== "string") return
+      try {
+        return { value: safeStorage.decryptString(Buffer.from(encrypted, "base64")), persistent: true }
+      } catch {
+        store.delete("token")
+        return
+      }
+    },
+    set(value) {
+      memory = value
+      if (!secure) {
+        store.delete("token")
+        return { value, persistent: false }
+      }
+      store.set("token", safeStorage.encryptString(value).toString("base64"))
+      memory = undefined
+      return { value, persistent: true }
+    },
+    delete() {
+      memory = undefined
+      store.delete("token")
+      void removeStoreFileIfEmpty("github.auth")
+    },
+  }
 }
 
 export function sendMenuCommand(win: BrowserWindow, id: string) {

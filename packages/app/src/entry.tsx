@@ -8,6 +8,7 @@ import { createBrowserDraftStore } from "@/utils/draft-store"
 import { dict as en } from "@/i18n/en"
 import { dict as zh } from "@/i18n/zh"
 import { authFromToken } from "@/utils/server"
+import { createWebGitHubPlatform } from "@/utils/github"
 import pkg from "../package.json"
 import { ServerConnection } from "./context/server"
 
@@ -122,6 +123,7 @@ const platform: Platform = {
   openExternal,
   restart,
   notify,
+  github: createWebGitHubPlatform({ apiUrl: import.meta.env.VITE_GITHUB_API_URL }),
   getDefaultServer: async () => {
     const stored = readDefaultServerUrl()
     return stored ? ServerConnection.Key.make(stored) : null

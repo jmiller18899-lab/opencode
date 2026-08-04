@@ -88,11 +88,23 @@ export function createHomeProjectsController(home: HomeController) {
       },
       choose: (conn: ServerConnection.Any) => {
         if (home.server.health(conn)?.healthy === false) return
-        pickDirectory({
-          server: conn,
-          title: language.t("command.project.open"),
-          multiple: true,
-          onSelect: (result) => home.project.add(conn, homeProjectDirectories(result)),
+        const chooseFolder = () =>
+          pickDirectory({
+            server: conn,
+            title: language.t("command.project.open"),
+            multiple: true,
+            onSelect: (result) => home.project.add(conn, homeProjectDirectories(result)),
+          })
+        if (!platform.github?.canClone(conn)) return chooseFolder()
+        void import("@/components/dialog-open-project").then(({ DialogOpenProject }) => {
+          dialog.show(() => (
+            <DialogOpenProject
+              destination={home.project.homedir()}
+              server={conn}
+              onOpenFolder={chooseFolder}
+              onOpenProject={(directory) => home.project.add(conn, [directory])}
+            />
+          ))
         })
       },
       close: (conn: ServerConnection.Any, directory: string) => {
@@ -120,7 +132,7 @@ export function createHomeProjectsController(home: HomeController) {
     },
     utility: {
       settings: openSettings,
-      help: () => platform.openExternal("https://opencode.ai/desktop-feedback"),
+      help: home.agent.launchCloak,
     },
   }
 }
