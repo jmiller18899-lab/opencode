@@ -173,7 +173,7 @@ export function HomeUtilityNav(props: {
       <HomeProjectNavButton
         type="button"
         data-action="cloak-agent-launch"
-        class="bg-surface-critical-strong text-text-on-critical-strong hover:bg-icon-critical-hover hover:text-text-on-critical-strong [&>[data-slot=icon-svg]]:text-text-on-critical-strong"
+        class="!bg-surface-critical-strong !text-text-on-critical-strong hover:!bg-icon-critical-hover hover:!text-text-on-critical-strong [&>[data-slot=icon-svg]]:!text-text-on-critical-strong"
         onClick={props.onOpenHelp}
       >
         <IconV2 name="help" size="small" />
