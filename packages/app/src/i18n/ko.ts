@@ -550,6 +550,7 @@ export const dict = {
   "sidebar.nav.projectsAndSessions": "프로젝트 및 세션",
   "sidebar.settings": "설정",
   "sidebar.help": "도움말",
+  "sidebar.cloakAgentLaunch": "Cloak agent launch",
   "sidebar.workspaces.enable": "작업 공간 활성화",
   "sidebar.workspaces.disable": "작업 공간 비활성화",
   "sidebar.gettingStarted.title": "시작하기",

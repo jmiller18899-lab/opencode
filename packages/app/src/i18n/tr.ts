@@ -766,6 +766,7 @@ export const dict = {
   "sidebar.nav.projectsAndSessions": "Projeler ve oturumlar",
   "sidebar.settings": "Ayarlar",
   "sidebar.help": "Yardım",
+  "sidebar.cloakAgentLaunch": "Cloak agent launch",
   "sidebar.workspaces.enable": "Çalışma alanlarını etkinleştir",
   "sidebar.workspaces.disable": "Çalışma alanlarını devre dışı bırak",
   "sidebar.gettingStarted.title": "Başlarken",

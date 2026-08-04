@@ -691,6 +691,7 @@ export const dict = {
   "sidebar.nav.projectsAndSessions": "المشاريع والجلسات",
   "sidebar.settings": "الإعدادات",
   "sidebar.help": "مساعدة",
+  "sidebar.cloakAgentLaunch": "Cloak agent launch",
   "sidebar.workspaces.enable": "تمكين مساحات العمل",
   "sidebar.workspaces.disable": "تعطيل مساحات العمل",
   "sidebar.gettingStarted.title": "البدء",

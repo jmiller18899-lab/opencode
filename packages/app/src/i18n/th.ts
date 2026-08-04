@@ -754,6 +754,7 @@ export const dict = {
   "sidebar.nav.projectsAndSessions": "โปรเจกต์และเซสชัน",
   "sidebar.settings": "การตั้งค่า",
   "sidebar.help": "ช่วยเหลือ",
+  "sidebar.cloakAgentLaunch": "Cloak agent launch",
   "sidebar.workspaces.enable": "เปิดใช้งานพื้นที่ทำงาน",
   "sidebar.workspaces.disable": "ปิดใช้งานพื้นที่ทำงาน",
   "sidebar.gettingStarted.title": "เริ่มต้นใช้งาน",

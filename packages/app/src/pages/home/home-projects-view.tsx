@@ -172,11 +172,12 @@ export function HomeUtilityNav(props: {
       </HomeProjectNavButton>
       <HomeProjectNavButton
         type="button"
-        class="text-v2-text-text-faint [&>[data-slot=icon-svg]]:text-v2-icon-icon-muted"
+        data-action="cloak-agent-launch"
+        class="bg-surface-critical-strong text-text-on-critical-strong hover:bg-icon-critical-hover hover:text-text-on-critical-strong [&>[data-slot=icon-svg]]:text-text-on-critical-strong"
         onClick={props.onOpenHelp}
       >
         <IconV2 name="help" size="small" />
-        <span class={HOME_PROJECT_NAV_LABEL}>{props.language.t("sidebar.help")}</span>
+        <span class={HOME_PROJECT_NAV_LABEL}>{props.language.t("sidebar.cloakAgentLaunch")}</span>
       </HomeProjectNavButton>
     </div>
   )
